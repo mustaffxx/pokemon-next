@@ -87,6 +87,7 @@ export default function PokemonSelection({ setMyPokemon }: { setMyPokemon: Dispa
                   alt="{pokemon.name} image"
                   width="200"
                   height="200"
+                  priority
                 />
                 <Typography alignSelf="center">{pokemon.name}</Typography>
                 <Typography variant="caption" alignSelf="center">HP: {pokemon.hp}</Typography>
