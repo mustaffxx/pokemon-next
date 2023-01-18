@@ -9,9 +9,20 @@ import CatchingPokemonOutlinedIcon from '@mui/icons-material/CatchingPokemonOutl
 // import Paper from '@mui/material/Paper';
 import PokemonSelection from '../src/components/pokemonSelection'
 
-const pages = ['Products', 'Pricing', 'Blog'];
+type Pokemon = {
+  name: string,
+  hp: number,
+  attack: number,
+  defense: number,
+  sprites: {
+    back: string,
+    front: string
+  }
+}
 
 export default function Home() {
+
+  const [myPokemon, setMyPokemon] = React.useState<Pokemon | null>(null);
 
   return (
     <>
@@ -73,7 +84,10 @@ export default function Home() {
           }}>
 
           {/* TODO: check if pokemon in selected to decide if game will start or not */}
-          <PokemonSelection />
+          {myPokemon
+            ? myPokemon.name
+            : <PokemonSelection setMyPokemon={setMyPokemon} />
+          }
 
         </Container>
       </Box >
