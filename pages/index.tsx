@@ -24,6 +24,25 @@ export default function Home() {
 
   const [myPokemon, setMyPokemon] = React.useState<Pokemon | null>(null);
 
+  React.useEffect(() => {
+    const localMyPokemonJson = JSON.parse(localStorage.getItem('localMyPokemon') || 'false');
+
+    if (!localMyPokemonJson)
+      return;
+
+    const localMyPokemon: Pokemon = localMyPokemonJson as Pokemon;
+
+  }, [])
+
+  React.useEffect(() => {
+    if (!myPokemon)
+      return;
+
+    localStorage.removeItem('localMyPokemon');
+    localStorage.setItem('localMyPokemon', JSON.stringify(myPokemon));
+
+  }, [myPokemon])
+
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
