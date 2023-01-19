@@ -8,18 +8,7 @@ import { Dispatch, SetStateAction } from "react";
 import { ArrowForwardIosTwoTone } from '@mui/icons-material';
 import { Typography } from '@mui/material';
 import { IconButton } from '@mui/material';
-
-
-type Pokemon = {
-  name: string,
-  hp: number,
-  attack: number,
-  defense: number,
-  sprites: {
-    back: string,
-    front: string
-  }
-}
+import { Pokemon } from '../types/Pokemon'
 
 export default function PokemonSelection({ setMyPokemon }: { setMyPokemon: Dispatch<SetStateAction<Pokemon | null>> }) {
 

@@ -8,17 +8,7 @@ import CatchingPokemonOutlinedIcon from '@mui/icons-material/CatchingPokemonOutl
 // import Grid from '@mui/material/Grid';
 // import Paper from '@mui/material/Paper';
 import PokemonSelection from '../src/components/pokemonSelection'
-
-type Pokemon = {
-  name: string,
-  hp: number,
-  attack: number,
-  defense: number,
-  sprites: {
-    back: string,
-    front: string
-  }
-}
+import { Pokemon } from '../src/types/Pokemon'
 
 export default function Home() {
 
