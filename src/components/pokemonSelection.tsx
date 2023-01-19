@@ -10,7 +10,6 @@ import { Typography } from '@mui/material';
 import { IconButton } from '@mui/material';
 
 
-
 type Pokemon = {
   name: string,
   hp: number,
@@ -65,40 +64,43 @@ export default function PokemonSelection({ setMyPokemon }: { setMyPokemon: Dispa
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          '& > :not(style)': {
-            m: 3,
-            width: 200,
-            height: 340,
+      <Stack spacing={1}>
+        <Typography variant="h4" alignSelf="center">Choose your starter</Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            '& > :not(style)': {
+              m: 3,
+              width: 200,
+              height: 340,
 
-          },
-          width: '100%',
-          justifyContent: 'center'
-        }}
-      >
-        {starterPokemons?.map((pokemon, index) =>
-          <IconButton key={index} onClick={() => setMyPokemon(pokemon)}>
-            <Paper elevation={3}>
-              <Stack spacing={1}>
-                <Image
-                  src={pokemon.sprites.front}
-                  alt="{pokemon.name} image"
-                  width="200"
-                  height="200"
-                  priority
-                />
-                <Typography alignSelf="center">{pokemon.name}</Typography>
-                <Typography variant="caption" alignSelf="center">HP: {pokemon.hp}</Typography>
-                <Typography variant="caption" alignSelf="center">ATTACK: {pokemon.attack}</Typography>
-                <Typography variant="caption" alignSelf="center">DEFENSE: {pokemon.defense}</Typography>
-              </Stack>
-            </Paper>
-          </IconButton>)
-        }
+            },
+            width: '100%',
+            justifyContent: 'center'
+          }}
+        >
 
-      </Box>
+          {starterPokemons?.map((pokemon, index) =>
+            <IconButton key={index} onClick={() => setMyPokemon(pokemon)}>
+              <Paper elevation={3}>
+                <Stack spacing={1}>
+                  <Image
+                    src={pokemon.sprites.front}
+                    alt="{pokemon.name} image"
+                    width="200"
+                    height="200"
+                    priority
+                  />
+                  <Typography alignSelf="center">{pokemon.name}</Typography>
+                  <Typography variant="caption" alignSelf="center">HP: {pokemon.hp}</Typography>
+                  <Typography variant="caption" alignSelf="center">ATTACK: {pokemon.attack}</Typography>
+                  <Typography variant="caption" alignSelf="center">DEFENSE: {pokemon.defense}</Typography>
+                </Stack>
+              </Paper>
+            </IconButton>)
+          }
+        </Box>
+      </Stack>
     </>
   )
 }
