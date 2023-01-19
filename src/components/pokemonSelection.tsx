@@ -80,7 +80,7 @@ export default function PokemonSelection({ setMyPokemon }: { setMyPokemon: Dispa
                     height="200"
                     priority
                   />
-                  <Typography alignSelf="center">{pokemon.name}</Typography>
+                  <Typography variant="h6" alignSelf="center">{pokemon.name}</Typography>
                   <Typography variant="caption" alignSelf="center">HP: {pokemon.hp}</Typography>
                   <Typography variant="caption" alignSelf="center">ATTACK: {pokemon.attack}</Typography>
                   <Typography variant="caption" alignSelf="center">DEFENSE: {pokemon.defense}</Typography>
