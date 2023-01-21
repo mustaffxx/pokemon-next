@@ -8,6 +8,7 @@ import CatchingPokemonOutlinedIcon from '@mui/icons-material/CatchingPokemonOutl
 // import Grid from '@mui/material/Grid';
 // import Paper from '@mui/material/Paper';
 import PokemonSelection from '../src/components/pokemonSelection'
+import PokemonArena from '../src/components/pokemonArena'
 import { Pokemon } from '../src/types/Pokemon'
 
 export default function Home() {
@@ -94,7 +95,7 @@ export default function Home() {
 
           {/* TODO: check if pokemon in selected to decide if game will start or not */}
           {myPokemon
-            ? myPokemon.name
+            ? <PokemonArena myPokemon={myPokemon} setMyPokemon={setMyPokemon} />
             : <PokemonSelection setMyPokemon={setMyPokemon} />
           }
 

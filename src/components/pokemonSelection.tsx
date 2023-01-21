@@ -31,7 +31,7 @@ export default function PokemonSelection({ setMyPokemon }: { setMyPokemon: Dispa
 
       const pokemons = pokemonsRaw.map((pokemonRaw: any) => {
         return {
-          name: pokemonRaw.name as string,
+          name: pokemonRaw.name.toUpperCase() as string,
           hp: pokemonRaw.stats[0].base_stat as number,
           attack: pokemonRaw.stats[1].base_stat as number,
           defense: pokemonRaw.stats[2].base_stat as number,
