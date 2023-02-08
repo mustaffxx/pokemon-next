@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import { Dispatch, SetStateAction } from "react";
 import { ArrowForwardIosTwoTone } from '@mui/icons-material';
-import { Typography } from '@mui/material';
+import { Divider, List, Typography } from '@mui/material';
 import { IconButton } from '@mui/material';
 import { Pokemon } from '../types/Pokemon'
 
@@ -23,31 +23,17 @@ export default function PokemonArena(props: IProps) {
     const pokemonCount = 1279;
     React.useEffect(() => {
         const getEnemyPokemon = async () => {
-            const randomPokemonId = Math.floor(Math.random() * pokemonCount + 1);
+            let randomRawResponse: Response;
 
-            // const randomRawPokemon = await
-            //     fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokemonId}`)
-            //         .then((response) => {
-            //             if (response.ok) return response.json();
-            //             return null;
-            //         }).catch((error) => {
-            //             return null;
-            //         });
+            for (let i = 0; i < 5; i++) {
+                const randomPokemonId = Math.floor(Math.random() * pokemonCount + 1);
 
-            // if (!randomRawPokemon) {
-            //     setEnemyPokemon(null);
-            //     return;
-            // }
+                randomRawResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokemonId}`);
 
-            const randomRawResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokemonId}`);
-
-            if (randomRawResponse.status === 404) {
-                console.log('error occured <-----------');
-                setEnemyPokemon(null);
-                return;
+                if (randomRawResponse.status == 200) break;
             }
 
-            const randomRawPokemon: Response = await randomRawResponse.json();
+            const randomRawPokemon = await randomRawResponse.json();
 
             const randomPokemon = {
                 name: randomRawPokemon.name.toUpperCase() as string,
@@ -58,8 +44,7 @@ export default function PokemonArena(props: IProps) {
                     back: randomRawPokemon.sprites.back_default as string,
                     front: randomRawPokemon.sprites.front_default as string
                 }
-            };
-            console.log('randomPokemon: ', randomPokemon);
+            } as Pokemon;
             setEnemyPokemon(randomPokemon);
         };
 
@@ -219,18 +204,32 @@ export default function PokemonArena(props: IProps) {
                         display: 'flex',
                         '& > :not(style)': {
                             m: 0,
-                            width: '25vw',
+                            width: '35vw',
                             height: '30vh',
-                            backgroundColor: 'green',
+                            // backgroundColor: 'green',
                         },
                     }}
                 >
-                    <Paper elevation={1}
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}>
-                        <p>test</p>
+                    <Paper elevation={1}>
+                        <Stack>
+                            <Typography sx={{ margin: '5px' }}
+                                alignSelf="center">Match History</Typography>
+                            <Divider variant="middle" />
+                            <Stack
+                                spacing={0}
+                                style={{
+                                    maxHeight: '25vh',
+                                    overflow: 'auto',
+                                    margin: '5px 0px 0px 10px',
+                                    padding: '0px'
+                                }}>
+                                {
+                                    [...Array(100)].map((x, i) =>
+                                        <p key={i}>test test test</p>
+                                    )
+                                }
+                            </Stack>
+                        </Stack>
                     </Paper>
                 </Box>
             </Stack >
