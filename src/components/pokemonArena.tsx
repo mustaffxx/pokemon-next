@@ -18,6 +18,45 @@ interface IProps {
 export default function PokemonArena(props: IProps) {
 
     const [enemyPokemon, setEnemyPokemon] = React.useState<Pokemon | null>(null);
+    const [myTurn, setMyTurn] = React.useState<boolean>(true);
+    const [matchHistory, setMatchHistory] = React.useState<Array<String>>([]);
+
+    function doABattle(): void {
+        if (!props.myPokemon || !enemyPokemon) {
+            console.log("-> ", props.myPokemon);
+            console.log("-> ", enemyPokemon);
+            return;
+        }
+
+        if (myTurn) {
+            const attack = props.myPokemon.attack;
+            const defense = enemyPokemon.defense;
+
+            const damage = Math.floor((attack / defense) + (attack * Math.random()) * 0.25);
+
+            setEnemyPokemon({ ...enemyPokemon, hp: enemyPokemon.hp - damage });
+            setMatchHistory((prevState) => {
+                return [
+                    `${props.myPokemon.name} inflicted ${damage} damage to ${enemyPokemon.name}`,
+                    ...prevState
+                ];
+            });
+        } else {
+            const attack = enemyPokemon.attack;
+            const defense = props.myPokemon.defense;
+
+            const damage = Math.floor((attack / defense) + (attack * Math.random()) * 0.25);
+
+            props.setMyPokemon({ ...props.myPokemon, hp: props.myPokemon.hp - damage });
+            setMatchHistory((prevState) => {
+                return [
+                    `${enemyPokemon.name} inflicted ${damage} damage to ${props.myPokemon.name}`,
+                    ...prevState
+                ]
+            });
+        }
+        setMyTurn(!myTurn);
+    }
 
     // count get from https://pokeapi.co/api/v2/pokemon/
     const pokemonCount = 1279;
@@ -45,12 +84,22 @@ export default function PokemonArena(props: IProps) {
                     front: randomRawPokemon.sprites.front_default as string
                 }
             } as Pokemon;
+
+            console.log(props.myPokemon);
+            console.log(randomPokemon);
+
             setEnemyPokemon(randomPokemon);
         };
 
         if (enemyPokemon === null)
             getEnemyPokemon();
 
+        const interval = setInterval(() => {
+            doABattle();
+            console.log(Date.now());
+        }, 2000);
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -223,11 +272,9 @@ export default function PokemonArena(props: IProps) {
                                     margin: '5px 0px 0px 10px',
                                     padding: '0px'
                                 }}>
-                                {
-                                    [...Array(100)].map((x, i) =>
-                                        <p key={i}>test test test</p>
-                                    )
-                                }
+                                {matchHistory?.map((message, index) =>
+                                    <p key={index}>{message}</p>
+                                )}
                             </Stack>
                         </Stack>
                     </Paper>
