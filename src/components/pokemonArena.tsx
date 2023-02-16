@@ -58,49 +58,47 @@ export default function PokemonArena(props: IProps) {
         setMyTurn(!myTurn);
     }
 
-    // count get from https://pokeapi.co/api/v2/pokemon/
-    const pokemonCount = 1279;
-    React.useEffect(() => {
-        const getEnemyPokemon = async () => {
-            let randomRawResponse: Response;
+    async function fetchPokemon(retries: number) {
+        const randomPokemonId = Math.floor(Math.random() * 1280);
 
-            for (let i = 0; i < 5; i++) {
-                const randomPokemonId = Math.floor(Math.random() * pokemonCount + 1);
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokemonId}`);
 
-                randomRawResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokemonId}`);
-
-                if (randomRawResponse.status == 200) break;
+        if (!response.ok) {
+            if (retries > 0) {
+                return fetchPokemon(retries - 1);
             }
 
-            const randomRawPokemon = await randomRawResponse.json();
+            throw new Error('Fetch pokemon failed');
+        }
 
-            const randomPokemon = {
-                name: randomRawPokemon.name.toUpperCase() as string,
-                hp: randomRawPokemon.stats[0].base_stat as number,
-                attack: randomRawPokemon.stats[1].base_stat as number,
-                defense: randomRawPokemon.stats[2].base_stat as number,
-                sprites: {
-                    back: randomRawPokemon.sprites.back_default as string,
-                    front: randomRawPokemon.sprites.front_default as string
-                }
-            } as Pokemon;
+        const data = await response.json();
 
-            console.log(props.myPokemon);
-            console.log(randomPokemon);
-
-            setEnemyPokemon(randomPokemon);
+        const randomPokemon: Pokemon = {
+            name: data.name.toUpperCase(),
+            hp: data.stats[0].base_stat,
+            attack: data.stats[1].base_stat,
+            defense: data.stats[2].base_stat,
+            sprites: {
+                back: data.sprites.back_default,
+                front: data.sprites.front_default
+            }
         };
 
-        if (enemyPokemon === null)
-            getEnemyPokemon();
+        setEnemyPokemon(randomPokemon);
+    };
 
+    React.useEffect(() => {
+        if (enemyPokemon === null) fetchPokemon(5);
+    }, []);
+
+    React.useEffect(() => {
         const interval = setInterval(() => {
             doABattle();
-            console.log(Date.now());
         }, 2000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [enemyPokemon]);
+
 
     return (
         <>
@@ -273,7 +271,7 @@ export default function PokemonArena(props: IProps) {
                                     padding: '0px'
                                 }}>
                                 {matchHistory?.map((message, index) =>
-                                    <p key={index}>{message}</p>
+                                    <p key={index} style={{ fontSize: '5' }}>{message}</p>
                                 )}
                             </Stack>
                         </Stack>
