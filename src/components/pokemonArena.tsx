@@ -21,40 +21,40 @@ export default function PokemonArena(props: IProps) {
     const [myTurn, setMyTurn] = React.useState<boolean>(true);
     const [matchHistory, setMatchHistory] = React.useState<Array<String>>([]);
 
-    function doABattle(): void {
-        if (!props.myPokemon || !enemyPokemon) {
-            console.log("-> ", props.myPokemon);
-            console.log("-> ", enemyPokemon);
-            return;
-        }
+    function calculateHealthBarWidth({ currenthp, minhp, maxhp, nminhp, nmaxhp }: { currenthp: number; minhp: number; maxhp: number; nminhp: number; nmaxhp: number; }) {
+        return Math.round(nminhp + (nmaxhp - nminhp) * (currenthp - minhp) / (maxhp - minhp));
+    }
 
-        if (myTurn) {
-            const attack = props.myPokemon.attack;
-            const defense = enemyPokemon.defense;
+    function calculateDamage(attack: number, defense: number): number {
+        const baseDamage = (attack / defense) + (attack * Math.random()) * 0.25;
+        return Math.floor(baseDamage);
+    }
 
-            const damage = Math.floor((attack / defense) + (attack * Math.random()) * 0.25);
+    function executeBattleRound(): void {
+        if (!props.myPokemon || !enemyPokemon) return;
 
-            setEnemyPokemon({ ...enemyPokemon, hp: enemyPokemon.hp - damage });
-            setMatchHistory((prevState) => {
-                return [
-                    `${props.myPokemon.name} inflicted ${damage} damage to ${enemyPokemon.name}`,
-                    ...prevState
-                ];
-            });
-        } else {
-            const attack = enemyPokemon.attack;
-            const defense = props.myPokemon.defense;
+        if (!props.myPokemon.currenthp || !enemyPokemon.currenthp) return;
 
-            const damage = Math.floor((attack / defense) + (attack * Math.random()) * 0.25);
+        const attacker = myTurn ? props.myPokemon : enemyPokemon;
+        const defender = myTurn ? enemyPokemon : props.myPokemon;
 
-            props.setMyPokemon({ ...props.myPokemon, hp: props.myPokemon.hp - damage });
-            setMatchHistory((prevState) => {
-                return [
-                    `${enemyPokemon.name} inflicted ${damage} damage to ${props.myPokemon.name}`,
-                    ...prevState
-                ]
-            });
-        }
+        const attack = attacker.attack;
+        const defense = defender.defense;
+
+        let damage = calculateDamage(attack, defense);
+
+        if (defender.currenthp - damage < 0) damage = defender.currenthp;
+
+        myTurn
+            ? setEnemyPokemon({ ...enemyPokemon, currenthp: defender.currenthp - damage })
+            : props.setMyPokemon({ ...props.myPokemon, currenthp: defender.currenthp - damage })
+
+
+        setMatchHistory((prevState) => [
+            `${attacker.name} inflicted ${damage} damage to ${defender.name}`,
+            ...prevState,
+        ]);
+
         setMyTurn(!myTurn);
     }
 
@@ -76,12 +76,13 @@ export default function PokemonArena(props: IProps) {
         const randomPokemon: Pokemon = {
             name: data.name.toUpperCase(),
             hp: data.stats[0].base_stat,
+            currenthp: data.stats[0].base_stat,
             attack: data.stats[1].base_stat,
             defense: data.stats[2].base_stat,
             sprites: {
                 back: data.sprites.back_default,
                 front: data.sprites.front_default
-            }
+            },
         };
 
         setEnemyPokemon(randomPokemon);
@@ -93,183 +94,57 @@ export default function PokemonArena(props: IProps) {
 
     React.useEffect(() => {
         const interval = setInterval(() => {
-            doABattle();
+            executeBattleRound();
         }, 2000);
 
         return () => clearInterval(interval);
-    }, [enemyPokemon]);
+    }, [enemyPokemon, myTurn]);
 
 
     return (
         <>
             <Stack spacing={3} alignItems='center'>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        '& > :not(style)': {
-                            m: 0,
-                            width: '35vw',
-                            height: '35vh',
-                        },
-                    }}
-                >
-                    <Paper elevation={1}
-                        sx={{
-                            display: 'flex',
-                            padding: '10px'
-                        }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                // backgroundColor: 'red',
-                                width: '50%',
-                                height: '100%',
-                                justifyContent: 'start',
-                                alignItems: 'end'
-
-                            }}>
-                            {/* <p>test0</p> */}
+                <Box sx={{ display: 'flex' }}>
+                    <Paper elevation={1} sx={{ display: 'flex', padding: '10px' }}>
+                        <Box sx={{ display: 'flex', width: '50%', height: '100%', justifyContent: 'start', alignItems: 'end' }}>
                             <Stack spacing={0}>
-                                <Box
-                                    sx={{
-                                        display: 'grid',
-                                        backgroundColor: '#f9f7d9',
-                                        border: 'solid 1px #223805',
-                                        borderRadius: '10px',
-                                        width: '200px',
-                                        height: '50px',
-                                        justifyContent: 'start',
-                                        paddingLeft: '5px',
-                                        paddingRight: '5px'
-                                    }}>
-                                    <Typography variant='caption italic'>
-                                        {props.myPokemon.name}
-                                    </Typography>
-
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            backgroundColor: '#223805',
-                                            width: '195px',
-                                            height: '10px',
-                                            border: 'solid 1px #223805',
-                                            borderRadius: '15px',
-                                            alignItems: 'center',
-                                            paddingLeft: '3px'
-                                        }}>
-                                        <Typography variant='body1' color={'#e8b64b'} fontSize={10}>
-                                            HP
-                                        </Typography>
-                                        <Box
-                                            sx={{
-                                                backgroundColor: '#81edac',
-                                                width: '195px',
-                                                height: '8px',
-                                                border: 'solid 1px #223805',
-                                                borderRadius: '10px'
-                                            }} />
+                                <Box sx={{ display: 'grid', backgroundColor: '#f9f7d9', border: 'solid 1px #223805', borderRadius: '10px', width: '200px', height: '50px', justifyContent: 'start', paddingLeft: '5px', paddingRight: '5px' }}>
+                                    <Typography variant='caption italic'>{props.myPokemon.name}</Typography>
+                                    <Box sx={{ display: 'flex', backgroundColor: '#223805', width: '195px', height: '10px', border: 'solid 1px #223805', borderRadius: '15px', alignItems: 'center', paddingLeft: '3px' }}>
+                                        <Typography variant='body1' color={'#e8b64b'} fontSize={10}>HP</Typography>
+                                        <Box sx={{ backgroundColor: '#81edac', width: calculateHealthBarWidth({ currenthp: props.myPokemon.currenthp, minhp: 0, maxhp: props.myPokemon.hp, nminhp: 0, nmaxhp: 195 }) + 'px', height: '8px', border: 'solid 1px #223805', borderRadius: '10px' }} />
                                     </Box>
                                 </Box>
-                                <Image
-                                    src={props.myPokemon.sprites.back}
-                                    alt="{props.myPokemon.name} image"
-                                    width="200"
-                                    height="200"
-                                    priority
-                                />
+                                <Image src={props.myPokemon.sprites.back} alt="{props.myPokemon.name} image" width="200" height="200" priority />
                             </Stack>
                         </Box>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                // backgroundColor: 'blue',
-                                width: '50%',
-                                height: '100%',
-                                justifyContent: 'end',
-                                alignItems: 'start',
-                            }}>
+                        <Box sx={{ display: 'flex', width: '50%', height: '100%', justifyContent: 'end', alignItems: 'start' }}>
                             <Stack spacing={0}>
-                                {enemyPokemon &&
+                                {enemyPokemon && (
                                     <>
-                                        < Image
-                                            src={enemyPokemon.sprites.front}
-                                            alt="{enemyPokemon.name} image"
-                                            width="200"
-                                            height="200"
-                                            priority
-                                        />
-                                        <Box
-                                            sx={{
-                                                display: 'grid',
-                                                backgroundColor: '#f9f7d9',
-                                                border: 'solid 1px #223805',
-                                                borderRadius: '10px',
-                                                width: '200px',
-                                                height: '50px',
-                                                justifyContent: 'start',
-                                                paddingLeft: '5px',
-                                                paddingRight: '5px'
-                                            }}>
-                                            <Typography variant='caption italic'>
-                                                {enemyPokemon.name}
-                                            </Typography>
-
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    backgroundColor: '#223805',
-                                                    width: '195px',
-                                                    height: '10px',
-                                                    border: 'solid 1px #223805',
-                                                    borderRadius: '15px',
-                                                    alignItems: 'center',
-                                                    paddingLeft: '3px'
-                                                }}>
-                                                <Typography variant='body1' color={'#e8b64b'} fontSize={10}>
-                                                    HP
-                                                </Typography>
-                                                <Box
-                                                    sx={{
-                                                        backgroundColor: '#81edac',
-                                                        width: '195px',
-                                                        height: '8px',
-                                                        border: 'solid 1px #223805',
-                                                        borderRadius: '10px'
-                                                    }} />
+                                        <Image src={enemyPokemon.sprites.front} alt="{enemyPokemon.name} image" width="200" height="200" priority />
+                                        <Box sx={{ display: 'grid', backgroundColor: '#f9f7d9', border: 'solid 1px #223805', borderRadius: '10px', width: '200px', height: '50px', justifyContent: 'start', paddingLeft: '5px', paddingRight: '5px' }}>
+                                            <Typography variant='caption italic'>{enemyPokemon.name}</Typography>
+                                            <Box sx={{ display: 'flex', backgroundColor: '#223805', width: '195px', height: '10px', border: 'solid 1px #223805', borderRadius: '15px', alignItems: 'center', paddingLeft: '3px' }}>
+                                                <Typography variant='body1' color={'#e8b64b'} fontSize={10}>HP</Typography>
+                                                <Box sx={{ backgroundColor: '#81edac', width: calculateHealthBarWidth({ currenthp: enemyPokemon.currenthp, minhp: 0, maxhp: enemyPokemon.hp, nminhp: 0, nmaxhp: 195 }) + 'px', height: '8px', border: 'solid 1px #223805', borderRadius: '10px' }} />
                                             </Box>
                                         </Box>
                                     </>
-                                }
-
+                                )}
                             </Stack>
                         </Box>
                     </Paper>
                 </Box>
 
-                <Box
-                    sx={{
-                        display: 'flex',
-                        '& > :not(style)': {
-                            m: 0,
-                            width: '35vw',
-                            height: '30vh',
-                            // backgroundColor: 'green',
-                        },
-                    }}
-                >
+                <Box sx={{ display: 'flex', '& > :not(style)': { m: 0, width: '444px', height: '30vh' }, }} >
                     <Paper elevation={1}>
                         <Stack>
-                            <Typography sx={{ margin: '5px' }}
-                                alignSelf="center">Match History</Typography>
+                            <Typography sx={{ margin: '5px' }} alignSelf="center">Match History</Typography>
                             <Divider variant="middle" />
                             <Stack
                                 spacing={0}
-                                style={{
-                                    maxHeight: '25vh',
-                                    overflow: 'auto',
-                                    margin: '5px 0px 0px 10px',
-                                    padding: '0px'
-                                }}>
+                                style={{ maxHeight: '25vh', overflow: 'auto', margin: '5px 0px 0px 10px', padding: '0px', alignItems: 'center' }}>
                                 {matchHistory?.map((message, index) =>
                                     <p key={index} style={{ fontSize: '5' }}>{message}</p>
                                 )}
