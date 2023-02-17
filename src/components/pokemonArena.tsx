@@ -21,8 +21,8 @@ export default function PokemonArena(props: IProps) {
     const [myTurn, setMyTurn] = React.useState<boolean>(true);
     const [matchHistory, setMatchHistory] = React.useState<Array<String>>([]);
 
-    function calculateHealthBarWidth({ currenthp, minhp, maxhp, nminhp, nmaxhp }: { currenthp: number; minhp: number; maxhp: number; nminhp: number; nmaxhp: number; }) {
-        return Math.round(nminhp + (nmaxhp - nminhp) * (currenthp - minhp) / (maxhp - minhp));
+    function calculateHealthBarWidth(currentHP: number, minHP: number, maxHP: number, minWidth: number, maxWidth: number) {
+        return Math.round(minWidth + (maxWidth - minWidth) * (currentHP - minHP) / (maxHP - minHP));
     }
 
     function calculateDamage(attack: number, defense: number): number {
@@ -100,7 +100,6 @@ export default function PokemonArena(props: IProps) {
         return () => clearInterval(interval);
     }, [enemyPokemon, myTurn]);
 
-
     return (
         <>
             <Stack spacing={3} alignItems='center'>
@@ -112,7 +111,7 @@ export default function PokemonArena(props: IProps) {
                                     <Typography variant='caption italic'>{props.myPokemon.name}</Typography>
                                     <Box sx={{ display: 'flex', backgroundColor: '#223805', width: '195px', height: '10px', border: 'solid 1px #223805', borderRadius: '15px', alignItems: 'center', paddingLeft: '3px' }}>
                                         <Typography variant='body1' color={'#e8b64b'} fontSize={10}>HP</Typography>
-                                        <Box sx={{ backgroundColor: '#81edac', width: calculateHealthBarWidth({ currenthp: props.myPokemon.currenthp, minhp: 0, maxhp: props.myPokemon.hp, nminhp: 0, nmaxhp: 195 }) + 'px', height: '8px', border: 'solid 1px #223805', borderRadius: '10px' }} />
+                                        <Box sx={{ backgroundColor: '#81edac', width: calculateHealthBarWidth(props.myPokemon.currenthp, 0, props.myPokemon.hp, 0, 195) + 'px', height: '8px', border: 'solid 1px #223805', borderRadius: '10px' }} />
                                     </Box>
                                 </Box>
                                 <Image src={props.myPokemon.sprites.back} alt="{props.myPokemon.name} image" width="200" height="200" priority />
@@ -127,7 +126,7 @@ export default function PokemonArena(props: IProps) {
                                             <Typography variant='caption italic'>{enemyPokemon.name}</Typography>
                                             <Box sx={{ display: 'flex', backgroundColor: '#223805', width: '195px', height: '10px', border: 'solid 1px #223805', borderRadius: '15px', alignItems: 'center', paddingLeft: '3px' }}>
                                                 <Typography variant='body1' color={'#e8b64b'} fontSize={10}>HP</Typography>
-                                                <Box sx={{ backgroundColor: '#81edac', width: calculateHealthBarWidth({ currenthp: enemyPokemon.currenthp, minhp: 0, maxhp: enemyPokemon.hp, nminhp: 0, nmaxhp: 195 }) + 'px', height: '8px', border: 'solid 1px #223805', borderRadius: '10px' }} />
+                                                <Box sx={{ backgroundColor: '#81edac', width: calculateHealthBarWidth(enemyPokemon.currenthp, 0, enemyPokemon.hp, 0, 195) + 'px', height: '8px', border: 'solid 1px #223805', borderRadius: '10px' }} />
                                             </Box>
                                         </Box>
                                     </>
